@@ -54,7 +54,7 @@ df_model.info()
 '''-------Treating the missing values of Closed Date------'''
 df_model.rename(columns = {'Created Date': 'Created_Date','Closed Date':'Closed_Date'}, inplace=True)
 type(df_model.Closed_Date[0])
-df_model['Closed_Date'].fillna(method="ffill", inplace=True)
+df_model['Closed_Date'].fillna(method="bfill", inplace=True)
 df_model['Location Type'].fillna(method="ffill", inplace=True)
 df_model['Closed_Date'].isna().sum()
 df_model['Location Type'].isna().sum()
@@ -66,7 +66,7 @@ df_model['Request_Closing_Time']= df_model['Closed_Date'] - df_model['Created_Da
 
 '''------------Finding the top complaints-------'''
 complaint_count=pd.crosstab(df_model['Complaint Type'],df_model['Complaint Type']).max().sort_values(ascending=False)
-
+complaint_count
 '''--------Plotting the top 6 complaints in a pie chart------'''
 complaint_count[0:6]
 labels = 'Blocked Driveway','Illegal Parking','Noise - Street/Sidewalk','Noise - Commercial','Derelict Vehicle','Noise - Vehicle'
@@ -78,7 +78,7 @@ ax1.axis('equal')
 plt.show()
 
 '''------------------Data Manipulation-------------'''
-req_data = df_model[['Created_Date', 'Closed_Date','Request_Closing_Time','Request_Closing_hours','Complaint Type','Location Type','Location']]
+req_data = df_model[['Request_Closing_Time','Request_Closing_hours','Complaint Type','Location Type']]
 req_data.rename(columns = {'Complaint Type':'Complaint_Type','Location Type':'Location_Type'}, inplace=True)
 
 ##Converting the request closing time to integer values
@@ -122,3 +122,20 @@ from scipy.stats import chi2_contingency
 stat, p, dof, expected = chi2_contingency(framed_data)
 
 print(stat,p)
+
+
+'''---------------------'''
+
+g = req_data.groupby('Location_Type')
+g
+
+for Location_Type in g:
+    print(Location_Type)
+
+req_data.drop(req_data.loc[req_data['Complaint_Type']=='Animal in a Park'].index, inplace=True)
+
+g2 = req_data.groupby('Complaint_Type')
+
+g2.mean()
+
+g2.mean().plot()
